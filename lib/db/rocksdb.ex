@@ -17,9 +17,9 @@ defmodule MerklePatriciaTree.DB.RocksDB do
   @spec init(DB.db_name()) :: DB.db()
   def init(db_name) do
     db_name = String.to_charlist(db_name)
-    db_options = [create_if_missing: true, compression: :zstd]
+    db_options = [create_if_missing: true, create_missing_column_families: true]
 
-    case :rocksdb.open_with_cf(db_name, db_options, [{'default', []}]) do
+    case :rocksdb.open_with_cf(db_name, db_options, [{'default', [compression: :zstd]}]) do
       {:ok, db_ref, [default]} ->
         {__MODULE__, {db_ref, default}}
 
@@ -40,7 +40,7 @@ defmodule MerklePatriciaTree.DB.RocksDB do
       ) do
     cf_params =
       Enum.map(cf_names, fn name ->
-        {Atom.to_charlist(name), []}
+        {Atom.to_charlist(name), [compression: :zstd]}
       end)
 
     db_name = String.to_charlist(db_name)
